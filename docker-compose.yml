@@ -1,0 +1,82 @@
+version: "3.9"
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: laravel_app
+    restart: unless-stopped
+    working_dir: /var/www
+    volumes:
+      - ./:/var/www
+    ports:
+      - "9000:9000"
+    networks:
+      - laravel
+    
+  nginx:
+    image: nginx:alpine
+    container_name: laravel_nginx
+    restart: unless-stopped
+    ports:
+      - "8083:80"
+    volumes:
+      - ./:/var/www
+      - ./docker/nginx/conf.d:/etc/nginx/conf.d
+    depends_on:
+      - app
+    networks:
+      - laravel
+
+  mysql:
+    image: mysql:8.0
+    container_name: laravel_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: laravel
+      MYSQL_USER: laravel
+      MYSQL_PASSWORD: secret
+    volumes:
+      - mysql_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    networks:
+      - laravel
+
+  phpmyadmin:
+      image: phpmyadmin/phpmyadmin
+      container_name: laravel_phpmyadmin
+      environment:
+        PMA_HOST: laravel_mysql
+        PMA_PORT: 3306
+        PMA_USER: root
+        PMA_PASSWORD: root
+      ports:
+        - "8084:80"   # host:8081 → phpMyAdmin UI
+      depends_on:
+        - mysql
+      networks:
+        - laravel
+  composer:
+    image: composer:2
+    container_name: laravel_composer
+    working_dir: /var/www
+    volumes:
+      - ./:/var/www
+    command: tail -f /dev/null   # giữ container chạy hoài
+
+  npm:
+    image: node:20
+    container_name: laravel_npm
+    working_dir: /var/www
+    volumes:
+      - ./:/var/www
+    command: tail -f /dev/null   # giữ container chạy hoài
+
+networks:
+  laravel:
+
+volumes:
+  mysql_data:
