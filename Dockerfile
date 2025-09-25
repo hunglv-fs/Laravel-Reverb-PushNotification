@@ -19,6 +19,8 @@ RUN apt-get update && apt-get install -y \
     nano \
     libicu-dev \
     libxml2-dev \
+    nodejs \
+    npm \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j$(nproc) \
        pdo_mysql \
@@ -29,10 +31,13 @@ RUN apt-get update && apt-get install -y \
        gd \
        intl \
        zip \
-       opcache
+       opcache \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Expose port
+# Install Composer
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
+# Expose port for PHP-FPM
 EXPOSE 9000
 
-# Start PHP-FPM
 CMD ["php-fpm"]

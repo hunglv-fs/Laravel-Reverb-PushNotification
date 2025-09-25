@@ -59,22 +59,6 @@ services:
         - mysql
       networks:
         - laravel
-  composer:
-    image: composer:2
-    container_name: laravel_composer
-    working_dir: /var/www
-    volumes:
-      - ./:/var/www
-    command: tail -f /dev/null   # giữ container chạy hoài
-
-  npm:
-    image: node:20
-    container_name: laravel_npm
-    working_dir: /var/www
-    volumes:
-      - ./:/var/www
-    command: tail -f /dev/null   # giữ container chạy hoài
-
 networks:
   laravel:
 
