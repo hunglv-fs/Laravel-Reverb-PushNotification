@@ -1,0 +1,15 @@
+FROM node:20-alpine
+
+WORKDIR /var/www
+
+# copy package.json trước để tối ưu cache
+COPY package*.json ./
+
+RUN npm install
+
+# copy toàn bộ code
+COPY . .
+
+EXPOSE 5173
+
+CMD ["npm", "run", "dev"]
